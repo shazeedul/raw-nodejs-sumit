@@ -1,0 +1,16 @@
+{
+  "name": "nodejs-sumit",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "NODE_ENV=local nodemon app.js",
+    "production": "NODE_ENV=production nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "shazeedul",
+  "license": "MIT",
+  "description": "",
+  "dependencies": {
+    "http": "^0.0.1-security"
+  }
+}
