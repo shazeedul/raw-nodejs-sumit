@@ -58,7 +58,7 @@ handler.handleReqRes = (req, res) => {
             res.end(payloadString);
         });
 
-        res.end('Hello World');
+        // res.end('Hello World');
     });
 };
 

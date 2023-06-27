@@ -1,6 +1,7 @@
 const data = require('../../lib/data');
 const { hash } = require('../../helpers/utilities');
 const { parseJSON } = require('../../helpers/utilities');
+const tokenHandler = require('../../handlers/routeHandlers/tokenHandler');
 
 const handler = {};
 
@@ -66,14 +67,24 @@ handler._users.get = (requestProperties, callback) => {
     const phone = typeof (requestProperties.queryStringObject.phone) === 'string' && requestProperties.queryStringObject.phone.trim().length === 11 ? requestProperties.queryStringObject.phone : false;
 
     if (phone) {
-        data.read('users', phone, (err, user) => {
-            const userObject = { ...parseJSON(user) };
-            if (!err && userObject) {
-                delete userObject.password;
-                callback(200, userObject);
+        const token = typeof requestProperties.headerOject.token === "string" ? requestProperties.headerOject.token : false;
+        tokenHandler._token.verify(token, phone, (tokenId) => {
+            if (tokenId) {
+                data.read('users', phone, (err, user) => {
+                    const userObject = { ...parseJSON(user) };
+                    if (!err && userObject) {
+                        delete userObject.password;
+                        delete userObject.tosAgreement;
+                        callback(200, userObject);
+                    } else {
+                        callback(404, {
+                            error: 'Requested user was not found'
+                        });
+                    }
+                });
             } else {
-                callback(404, {
-                    error: 'Requested user was not found'
+                callback(403, {
+                    error: 'Authentication failure!'
                 });
             }
         });
@@ -135,13 +146,31 @@ handler._users.put = (requestProperties, callback) => {
     }
     else {
         callback(400, {
-            error: 'You have a problem in your request'
+            error: 'Invalid phone number. Please try again!'
         });
     }
 };
 
 handler._users.delete = (requestProperties, callback) => {
-    callback(200);
+    const phone = typeof requestProperties.queryStringObject.phone === "string" && requestProperties.queryStringObject.phone.trim().length === 11 ? requestProperties.queryStringObject.phone : false;
+
+    if (phone) {
+        data.read('users', phone, (err1, userData) => {
+            if (!err1 && userData) {
+                data.delete("users", phone, (err2) => {
+                    if (!err2) {
+                        callback(200, {
+                            "massage": "User was deleted successfully!"
+                        })
+                    }
+                });
+            } else {
+                callback(500, { "error": "There was a server side problem" })
+            }
+        });
+    } else {
+        callback(400, { "error": "There was a problem in your server" })
+    }
 };
 
 module.exports = handler;
