@@ -39,17 +39,11 @@
         "source.organizeImports": true
     },
     "eslint.alwaysShowStatus": true,
-    "prettier.disableLanguages": [
-        "js",
-        "jsx",
-        "ts",
-        "tsx"
-    ],
     // terminal
     "terminal.integrated.fontSize": 16,
     "terminal.integrated.fontFamily": "Fira Code",
     "terminal.integrated.fontWeight": "normal",
     // workbench
-    "workbench.iconTheme": "vscode-icons",
+    "workbench.iconTheme": "material-icon-theme",
     "workbench.colorTheme": "Default Dark Modern"
 }
