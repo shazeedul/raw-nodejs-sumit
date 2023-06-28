@@ -4,14 +4,16 @@ const environments = {};
 environments.local = {
     port: 3000,
     envName: 'local',
-    secretKey: 'yyfrygryygygygjvjdjg'
+    secretKey: 'yyfrygryygygygjvjdjg',
+    maxChecks: 5,
 };
 
 // Production environment
 environments.production = {
     port: 5000,
     envName: 'production',
-    secretKey: 'yyfrygryygygygjvjdjg'
+    secretKey: 'yyfrygryygygygjvjdjg',
+    maxChecks: 5,
 };
 
 // Determine which environment was passed as a command-line argument

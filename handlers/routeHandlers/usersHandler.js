@@ -28,31 +28,40 @@ handler._users.post = (requestProperties, callback) => {
     const tosAgreement = typeof (requestProperties.body.tosAgreement) === 'boolean' && requestProperties.body.tosAgreement ? requestProperties.body.tosAgreement : false;
 
     if (firstName && lastName && phone && password && tosAgreement) {
-        data.read('users', phone, (err1, user) => {
-            if (err1) {
-                const userObject = {
-                    firstName,
-                    lastName,
-                    phone,
-                    password: hash(password),
-                    tosAgreement
-                };
+        const token = typeof requestProperties.headersObject.token === "string" ? requestProperties.headersObject.token : false;
+        tokenHandler._token.verify(token, phone, (tokenId) => {
+            if (tokenId) {
+                data.read('users', phone, (err1, user) => {
+                    if (err1) {
+                        const userObject = {
+                            firstName,
+                            lastName,
+                            phone,
+                            password: hash(password),
+                            tosAgreement
+                        };
 
-                data.create('users', phone, userObject, (err2) => {
-                    if (!err2) {
-                        callback(200, {
-                            message: 'User was created successfully'
+                        data.create('users', phone, userObject, (err2) => {
+                            if (!err2) {
+                                callback(200, {
+                                    message: 'User was created successfully'
+                                });
+                            } else {
+                                callback(500, {
+                                    error: 'Could not create user'
+                                });
+                            }
                         });
-                    } else {
+                    }
+                    else {
                         callback(500, {
-                            error: 'Could not create user'
+                            error: 'There was a problem in server side'
                         });
                     }
                 });
-            }
-            else {
-                callback(500, {
-                    error: 'There was a problem in server side'
+            } else {
+                callback(403, {
+                    error: 'Authentication failure!'
                 });
             }
         });
@@ -67,7 +76,7 @@ handler._users.get = (requestProperties, callback) => {
     const phone = typeof (requestProperties.queryStringObject.phone) === 'string' && requestProperties.queryStringObject.phone.trim().length === 11 ? requestProperties.queryStringObject.phone : false;
 
     if (phone) {
-        const token = typeof requestProperties.headerOject.token === "string" ? requestProperties.headerOject.token : false;
+        const token = typeof requestProperties.headersObject.token === "string" ? requestProperties.headersObject.token : false;
         tokenHandler._token.verify(token, phone, (tokenId) => {
             if (tokenId) {
                 data.read('users', phone, (err, user) => {
@@ -107,33 +116,42 @@ handler._users.put = (requestProperties, callback) => {
 
     if (phone) {
         if (firstName || lastName || password) {
-            data.read('users', phone, (err1, user) => {
-                const userData = { ...parseJSON(user) };
-                if (!err1 && userData) {
-                    if (firstName) {
-                        userData.firstName = firstName;
-                    }
-                    if (lastName) {
-                        userData.lastName = lastName;
-                    }
-                    if (password) {
-                        userData.password = hash(password);
-                    }
-                    data.update('users', phone, userData, (err2) => {
-                        if (!err2) {
-                            callback(200, {
-                                message: 'User was updated successfully'
+            const token = typeof requestProperties.headersObject.token === "string" ? requestProperties.headersObject.token : false;
+            tokenHandler._token.verify(token, phone, (tokenId) => {
+                if (tokenId) {
+                    data.read('users', phone, (err1, user) => {
+                        const userData = { ...parseJSON(user) };
+                        if (!err1 && userData) {
+                            if (firstName) {
+                                userData.firstName = firstName;
+                            }
+                            if (lastName) {
+                                userData.lastName = lastName;
+                            }
+                            if (password) {
+                                userData.password = hash(password);
+                            }
+                            data.update('users', phone, userData, (err2) => {
+                                if (!err2) {
+                                    callback(200, {
+                                        message: 'User was updated successfully'
+                                    });
+                                } else {
+                                    callback(500, {
+                                        error: 'There was a problem in server side'
+                                    });
+                                }
                             });
-                        } else {
-                            callback(500, {
-                                error: 'There was a problem in server side'
+                        }
+                        else {
+                            callback(400, {
+                                error: 'You have a problem in your request'
                             });
                         }
                     });
-                }
-                else {
-                    callback(400, {
-                        error: 'You have a problem in your request'
+                } else {
+                    callback(403, {
+                        error: 'Authentication failure!'
                     });
                 }
             });
@@ -155,19 +173,26 @@ handler._users.delete = (requestProperties, callback) => {
     const phone = typeof requestProperties.queryStringObject.phone === "string" && requestProperties.queryStringObject.phone.trim().length === 11 ? requestProperties.queryStringObject.phone : false;
 
     if (phone) {
-        data.read('users', phone, (err1, userData) => {
-            if (!err1 && userData) {
-                data.delete("users", phone, (err2) => {
-                    if (!err2) {
-                        callback(200, {
-                            "massage": "User was deleted successfully!"
-                        })
-                    }
-                });
-            } else {
-                callback(500, { "error": "There was a server side problem" })
-            }
-        });
+        const token = typeof requestProperties.headersObject.token === "string" ? requestProperties.headersObject.token : false;
+            tokenHandler._token.verify(token, phone, (tokenId) => {
+                if (tokenId) {
+                    data.read('users', phone, (err1, userData) => {
+                        if (!err1 && userData) {
+                            data.delete("users", phone, (err2) => {
+                                if (!err2) {
+                                    callback(200, {
+                                        "massage": "User was deleted successfully!"
+                                    })
+                                }
+                            });
+                        } else {
+                            callback(500, { "error": "There was a server side problem" })
+                        }
+                    });
+                } else {
+                    callback(403, { "error": "Authentication failure!" })
+                }
+            });
     } else {
         callback(400, { "error": "There was a problem in your server" })
     }
