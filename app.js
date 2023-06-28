@@ -1,17 +1,22 @@
-const http = require('http');
-const { handleReqRes } = require('./helpers/handleReqRes');
-const environment = require('./helpers/environments');
+// const { sendTwilioSms } = require('./helpers/notifications');
+
+const server = require('./lib/server');
+const worker = require('./lib/worker');
 
 const app = {};
 
-app.handleReqRes = handleReqRes;
-
-app.createServer = () => {
-    const server = http.createServer(app.handleReqRes);
-    server.listen(environment.port, () => {
-        console.log(`Environment variable: ${process.env.NODE_ENV}`);
-        console.log(`Server is listening on port ${environment.port}`);
-    });
+app.init = () => {
+    server.init();
+    worker.init();
 };
 
-app.createServer();
+app.init();
+
+module.exports = app;
+
+// sendTwilioSms('01731993333', 'Hello World!', (err) => {
+//     console.log(`This is the error: ${err}`);
+// });
+// sendTwilioSms('01571228259', 'Hello World!', (err) => {
+//     console.log(`This is the error: ${err}`);
+// });

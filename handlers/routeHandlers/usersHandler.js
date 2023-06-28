@@ -28,40 +28,31 @@ handler._users.post = (requestProperties, callback) => {
     const tosAgreement = typeof (requestProperties.body.tosAgreement) === 'boolean' && requestProperties.body.tosAgreement ? requestProperties.body.tosAgreement : false;
 
     if (firstName && lastName && phone && password && tosAgreement) {
-        const token = typeof requestProperties.headersObject.token === "string" ? requestProperties.headersObject.token : false;
-        tokenHandler._token.verify(token, phone, (tokenId) => {
-            if (tokenId) {
-                data.read('users', phone, (err1, user) => {
-                    if (err1) {
-                        const userObject = {
-                            firstName,
-                            lastName,
-                            phone,
-                            password: hash(password),
-                            tosAgreement
-                        };
+        data.read('users', phone, (err1, user) => {
+            if (err1) {
+                const userObject = {
+                    firstName,
+                    lastName,
+                    phone,
+                    password: hash(password),
+                    tosAgreement
+                };
 
-                        data.create('users', phone, userObject, (err2) => {
-                            if (!err2) {
-                                callback(200, {
-                                    message: 'User was created successfully'
-                                });
-                            } else {
-                                callback(500, {
-                                    error: 'Could not create user'
-                                });
-                            }
+                data.create('users', phone, userObject, (err2) => {
+                    if (!err2) {
+                        callback(200, {
+                            message: 'User was created successfully'
                         });
-                    }
-                    else {
+                    } else {
                         callback(500, {
-                            error: 'There was a problem in server side'
+                            error: 'Could not create user'
                         });
                     }
                 });
-            } else {
-                callback(403, {
-                    error: 'Authentication failure!'
+            }
+            else {
+                callback(500, {
+                    error: 'There was a problem in server side'
                 });
             }
         });

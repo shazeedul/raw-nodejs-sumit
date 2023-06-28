@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+
 const environments = require('./environments');
 
 const utilities = {};

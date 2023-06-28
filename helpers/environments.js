@@ -6,6 +6,11 @@ environments.local = {
     envName: 'local',
     secretKey: 'yyfrygryygygygjvjdjg',
     maxChecks: 5,
+    twilio: {
+        fromPhone: '+14178923941',
+        accountSid: 'AC64bedf61d7bef97c456982cb79718377',
+        authToken: 'aeec883971c2b679ecc9e274bc8305f8',
+    },
 };
 
 // Production environment
@@ -14,6 +19,11 @@ environments.production = {
     envName: 'production',
     secretKey: 'yyfrygryygygygjvjdjg',
     maxChecks: 5,
+    twilio: {
+        fromPhone: '+14178923941',
+        accountSid: 'AC64bedf61d7bef97c456982cb79718377',
+        authToken: 'aeec883971c2b679ecc9e274bc8305f8',
+    },
 };
 
 // Determine which environment was passed as a command-line argument
